@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MEMORA PHOTOBOOTH</title>
+
+  <!-- Meta tags PWA para iPad -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Memora Booth">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600&family=Caveat:wght@500;600&display=swap');
+
+    :root {
+      --bg-cream: #FAF6F0;
+      --burgundy: #580C1F;
+      --gold: #E2B24C;
+      --pink-blob: #F7C5D5;
+      --blue-blob: #C1DCF0;
+      --yellow-blob: #FDE7B3;
+      --text-dark: #3B0E17;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* TARJETA PRINCIPAL */
+    .memora-card {
+      background: #FFFFFF;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px rgba(88, 12, 31, 0.07);
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* ENCABEZADO LOGO CON BLOBS Y ESTRELLA DENTRO DE LA O */
+    .brand-header {
+      position: relative;
+      margin-bottom: 25px;
+      padding: 15px 0;
+    }
+
+    .brand-blobs {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 42px;
+      letter-spacing: 3px;
+      color: var(--burgundy);
+      line-height: 1;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* O personalizada con la estrella centrada */
+    .o-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .o-sparkle {
+      position: absolute;
+      font-size: 14px;
+      color: var(--burgundy);
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      letter-spacing: 7px;
+      color: var(--burgundy);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .brand-tagline {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--burgundy);
+      opacity: 0.9;
+    }
+
+    /* PANTALLAS */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* CAMARA */
+    .camera-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 3px solid #000;
+    }
+    
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      transition: filter 0.3s ease;
+    }
+
+    /* FILTROS EN VIVO */
+    video.filter-bw-warm {
+      filter: grayscale(100%) contrast(125%) brightness(95%) sepia(22%);
+      -webkit-filter: grayscale(100%) contrast(125%) brightness(95%) sepia(22%);
+    }
+
+    video.filter-bw-classic {
+      filter: grayscale(100%) contrast(135%) brightness(100%);
+      -webkit-filter: grayscale(100%) contrast(135%) brightness(100%);
+    }
+
+    .countdown-number {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 100px;
+      color: #FFF;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      display: none;
+    }
+
+    /* SELECTOR DE FILTROS ESTILO BLOBS PASTEL */
+    .filter-blob-selector {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .blob-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 10px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--burgundy);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+    }
+
+    .blob-btn[data-filter="bw-warm"] {
+      background-color: var(--pink-blob);
+      border-radius: 25px 15px 20px 18px;
+    }
+
+    .blob-btn[data-filter="bw-classic"] {
+      background-color: var(--blue-blob);
+      border-radius: 15px 25px 18px 22px;
+    }
+
+    .blob-btn[data-filter="color"] {
+      background-color: var(--yellow-blob);
+      border-radius: 20px 18px 25px 15px;
+    }
+
+    .blob-btn.active {
+      transform: scale(1.08);
+      box-shadow: 0 6px 15px rgba(88, 12, 31, 0.18);
+      border: 2px solid var(--burgundy);
+    }
+
+    /* ANIMACION PHOTOBOOTH DE CAÍDA */
+    .photobooth-slot {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      overflow: hidden;
+      background: #EAE6DF;
+      border-radius: 16px;
+      border: 2px inset rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-bottom: 25px;
+    }
+
+    .photobooth-slot::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: #222;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    canvas#photo-strip {
+      transform: translateY(-100%);
+      transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      margin-top: 10px;
+      max-height: 350px;
+      width: auto;
+    }
+
+    canvas#photo-strip.dispensed {
+      transform: translateY(0%);
+    }
+
+    /* BOTONES DE ACCIÓN HORIZONTALES CON BLOBS Y SÍMBOLOS VECTORIALES */
+    .action-blobs-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .action-blob-btn {
+      flex: 1;
+      border: none;
+      padding: 12px 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--burgundy);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .action-blob-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(88, 12, 31, 0.15);
+    }
+
+    .action-blob-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: var(--burgundy);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Asignación de formas orgánicas y colores del logo */
+    .btn-download-blob {
+      background-color: var(--pink-blob);
+      border-radius: 22px 14px 18px 20px;
+    }
+
+    .btn-share-blob {
+      background-color: var(--blue-blob);
+      border-radius: 16px 24px 18px 14px;
+    }
+
+    .btn-restart-blob {
+      background-color: var(--yellow-blob);
+      border-radius: 20px 16px 24px 18px;
+    }
+
+    .btn-memora {
+      background: var(--burgundy);
+      color: #FFF;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      padding: 16px 25px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    .subtitle-note {
+      font-family: 'Caveat', cursive;
+      font-size: 22px;
+      color: var(--burgundy);
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="memora-card">
+    
+    <!-- ENCABEZADO LOGO CON BLOBS Y ESTRELLA DENTRO DE LA O -->
+    <div class="brand-header">
+      <div class="brand-blobs">
+        <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+          <path d="M40 80C20 50 50 10 110 20C170 30 180 80 140 110C100 140 60 110 40 80Z" fill="#F7C5D5" opacity="0.85"/>
+          <path d="M220 50C200 20 270 10 320 30C370 50 360 100 310 110C260 120 240 80 220 50Z" fill="#C1DCF0" opacity="0.85"/>
+          <path d="M250 110C230 80 290 70 330 90C370 110 350 150 300 145C250 140 270 140 250 110Z" fill="#FDE7B3" opacity="0.85"/>
+        </svg>
+      </div>
+
+      <div class="brand-content">
+        <div class="brand-title">
+          MEM<span class="o-container">O<span class="o-sparkle">✦</span></span>RA
+        </div>
+        <div class="brand-sub">PHOTOBOOTH</div>
+        <div class="brand-tagline">make the moment memorable.</div>
+      </div>
+    </div>
+
+    <!-- PANTALLA 1 -->
+    <div id="screen-home" class="screen active">
+      <p class="subtitle-note">say cheese! ✦</p>
+      <button class="btn-memora" onclick="goToScreen('screen-booth')">
+        INICIAR SESIÓN
+      </button>
+    </div>
+
+    <!-- PANTALLA 2 -->
+    <div id="screen-booth" class="screen">
+      
+      <!-- BOTONES FILTRO BLOBS PASTEL -->
+      <div class="filter-blob-selector">
+        <button class="blob-btn active" data-filter="bw-warm" onclick="selectFilter('bw-warm')">
+          B&W Cálido
+        </button>
+        <button class="blob-btn" data-filter="bw-classic" onclick="selectFilter('bw-classic')">
+          B&W Neutro
+        </button>
+        <button class="blob-btn" data-filter="color" onclick="selectFilter('color')">
+          Color
+        </button>
+      </div>
+
+      <div class="camera-container">
+        <video id="webcam" autoplay playsinline></video>
+        <div id="countdown" class="countdown-number">3</div>
+      </div>
+
+      <button id="start-btn" class="btn-memora" onclick="startPhotoSequence()">
+        TOMAR 4 FOTOS
+      </button>
+    </div>
+
+    <!-- PANTALLA 3 -->
+    <div id="screen-result" class="screen">
+      <p class="subtitle-note" id="dispense-text">Imprimiendo foto...</p>
+      
+      <!-- Ranura photobooth -->
+      <div class="photobooth-slot">
+        <canvas id="photo-strip"></canvas>
+      </div>
+      
+      <!-- BOTONES DE ACCIÓN ICONOS + TEXTO SOBRE FORMAS PASTEL -->
+      <div class="action-blobs-container" id="action-buttons" style="opacity: 0; pointer-events: none; transition: opacity 0.5s ease;">
+        
+        <!-- Descargar -->
+        <button class="action-blob-btn btn-download-blob" onclick="downloadStrip()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          download
+        </button>
+
+        <!-- Compartir / Guardar -->
+        <button class="action-blob-btn btn-share-blob" onclick="shareOrSave()">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          share
+        </button>
+
+        <!-- Reiniciar -->
+        <button class="action-blob-btn btn-restart-blob" onclick="resetBooth()">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          restart
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const video = document.getElementById('webcam');
+    const countdownEl = document.getElementById('countdown');
+    const canvas = document.getElementById('photo-strip');
+    const ctx = canvas.getContext('2d');
+    
+    let photos = [];
+    let currentFilter = 'bw-warm';
+
+    function selectFilter(filterType) {
+      currentFilter = filterType;
+      
+      document.querySelectorAll('.filter-blob-selector .blob-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
+      });
+
+      video.className = '';
+      if (filterType === 'bw-warm') {
+        video.classList.add('filter-bw-warm');
+      } else if (filterType === 'bw-classic') {
+        video.classList.add('filter-bw-classic');
+      }
+    }
+
+    function goToScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      if(screenId === 'screen-booth') startCamera();
+    }
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { width: { ideal: 720 }, height: { ideal: 960 }, facingMode: "user" } 
+        });
+        video.srcObject = stream;
+        selectFilter(currentFilter);
+      } catch(err) {
+        alert("Por favor habilita los permisos de la cámara.");
+      }
+    }
+
+    async function startPhotoSequence() {
+      document.getElementById('start-btn').disabled = true;
+      photos = [];
+
+      for(let i = 0; i < 4; i++) {
+        await runCountdown(3);
+        captureToMemory();
+      }
+
+      generateMemoraStrip();
+      goToScreen('screen-result');
+      triggerDispenseAnimation();
+      document.getElementById('start-btn').disabled = false;
+    }
+
+    function runCountdown(sec) {
+      return new Promise(resolve => {
+        countdownEl.style.display = 'block';
+        let current = sec;
+        countdownEl.textContent = current;
+        const interval = setInterval(() => {
+          current--;
+          if(current > 0) {
+            countdownEl.textContent = current;
+          } else {
+            clearInterval(interval);
+            countdownEl.style.display = 'none';
+            resolve();
+          }
+        }, 1000);
+      });
+    }
+
+    function captureToMemory() {
+      const tempCanvas = document.createElement('canvas');
+      const photoW = 400;
+      const photoH = 500;
+      tempCanvas.width = photoW;
+      tempCanvas.height = photoH;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.translate(photoW, 0);
+      tempCtx.scale(-1, 1);
+      tempCtx.drawImage(video, 0, 0, photoW, photoH);
+
+      if (currentFilter !== 'color') {
+        const imgData = tempCtx.getImageData(0, 0, photoW, photoH);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+          if (currentFilter === 'bw-warm') {
+            gray = ((gray - 128) * 1.3) + 128;
+            gray = Math.min(255, Math.max(0, gray));
+            data[i]     = Math.min(255, gray + 12);
+            data[i + 1] = Math.min(255, gray + 8);
+            data[i + 2] = Math.max(0, gray - 10);
+          } else if (currentFilter === 'bw-classic') {
+            gray = ((gray - 128) * 1.4) + 128;
+            gray = Math.min(255, Math.max(0, gray));
+            data[i]     = gray;
+            data[i + 1] = gray;
+            data[i + 2] = gray;
+          }
+        }
+        tempCtx.putImageData(imgData, 0, 0);
+      }
+
+      photos.push(tempCanvas);
+    }
+
+    function generateMemoraStrip() {
+      const photoW = 280;
+      const photoH = 350;
+      const borderWidth = 12;
+      const dividerHeight = 8;
+
+      const totalWidth = photoW + (borderWidth * 2);
+      const totalHeight = (borderWidth * 2) + (photoH * 4) + (dividerHeight * 3);
+
+      canvas.width = totalWidth;
+      canvas.height = totalHeight;
+
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      photos.forEach((photoCanvas, index) => {
+        const x = borderWidth;
+        const y = borderWidth + index * (photoH + dividerHeight);
+        ctx.drawImage(photoCanvas, x, y, photoW, photoH);
+      });
+    }
+
+    function triggerDispenseAnimation() {
+      const btnGroup = document.getElementById('action-buttons');
+      const textLabel = document.getElementById('dispense-text');
+      
+      canvas.classList.remove('dispensed');
+      btnGroup.style.opacity = '0';
+      btnGroup.style.pointerEvents = 'none';
+      textLabel.textContent = "Imprimiendo foto...";
+
+      setTimeout(() => {
+        canvas.classList.add('dispensed');
+      }, 200);
+
+      setTimeout(() => {
+        textLabel.textContent = "¡Tu tira está lista! ✦";
+        btnGroup.style.opacity = '1';
+        btnGroup.style.pointerEvents = 'auto';
+      }, 2000);
+    }
+
+    async function shareOrSave() {
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'memora-vintage-strip.png', { type: 'image/png' });
+        
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Mi tira Memora Vintage',
+              text: '¡Mira mi tira de fotos de Memora Photobooth!'
+            });
+          } catch (err) {
+            console.log('Cancelado', err);
+          }
+        } else {
+          downloadStrip();
+        }
+      }, 'image/png');
+    }
+
+    function downloadStrip() {
+      const link = document.createElement('a');
+      link.download = 'memora-vintage-strip.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function resetBooth() {
+      goToScreen('screen-booth');
+    }
+  </script>
+</body>
+</html>
