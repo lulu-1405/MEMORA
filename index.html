@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>MEMORA PHOTOBOOTH</title>
-<link rel="apple-touch-icon" href="40921E8F-2CB4-46D4-A427-04C4FC1FF750.jpeg">
-<link rel="icon" type="image/jpeg" href="40921E8F-2CB4-46D4-A427-04C4FC1FF750.jpeg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
 
 
   <!-- Meta tags PWA para iPad -->
@@ -25,6 +25,30 @@
       --yellow-blob: #FDE7B3;
       --text-dark: #3B0E17;
     }
+  /* Arreglo para que las fotos verticales no se deformen */
+  .photo-strip img, video {
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  /* Estilos para el flash blanco */
+  #flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.15s ease-out;
+  }
+
+  #flash-overlay.active {
+    opacity: 1;
+    transition: opacity 0.05s ease-in;
+  }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -333,6 +357,7 @@
   </style>
 </head>
 <body>
+<div id="flash-overlay"></div>
 
   <div class="memora-card">
     
@@ -473,6 +498,13 @@
       for(let i = 0; i < 4; i++) {
         await runCountdown(3);
         captureToMemory();
+              const flash = document.getElementById('flash-overlay');
+        if (flash) {
+          flash.classList.add('active');
+          setTimeout(() => flash.classList.remove('active'), 150);
+        }
+
+
       }
 
       generateMemoraStrip();
