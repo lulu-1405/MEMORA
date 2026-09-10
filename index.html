@@ -575,26 +575,42 @@
     }
 
     function generateMemoraStrip() {
-      const photoW = 280;
-      const photoH = 350;
-      const borderWidth = 12;
-      const dividerHeight = 8;
+  // Configuración de la tira fotográfica
+  const photoW = 280;
+  const photoH = 350;
+  const borderWidth = 12;
+  const dividerHeight = 8;
 
-      const totalWidth = photoW + (borderWidth * 2);
-      const totalHeight = (borderWidth * 2) + (photoH * 4) + (dividerHeight * 3);
+  // Ancho y alto de la tira interna
+  const stripW = photoW + (borderWidth * 2);
+  const stripH = (borderWidth * 2) + (photoH * 4) + (dividerHeight * 3);
 
-      canvas.width = totalWidth;
-      canvas.height = totalHeight;
+  // Márgenes del fondo (para el estilo story)
+  const paddingX = 100; // Espacio a los lados
+  const paddingY = 80;  // Espacio arriba y abajo
 
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Dimensiones totales de la imagen descargable
+  canvas.width = stripW + (paddingX * 2);
+  canvas.height = stripH + (paddingY * 2);
 
-      photos.forEach((photoCanvas, index) => {
-        const x = borderWidth;
-        const y = borderWidth + index * (photoH + dividerHeight);
-        ctx.drawImage(photoCanvas, x, y, photoW, photoH);
-      });
-    }
+  // 1. Dibujar el fondo completo estilo story (#E2E2E2)
+  ctx.fillStyle = '#E2E2E2';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 2. Dibujar el marco base de la tira (centrado)
+  const stripX = paddingX;
+  const stripY = paddingY;
+  ctx.fillStyle = '#000000'; // Fondo de la tira fotográfica
+  ctx.fillRect(stripX, stripY, stripW, stripH);
+
+  // 3. Dibujar las 4 fotos dentro de la tira
+  photos.forEach((img, idx) => {
+    const x = stripX + borderWidth;
+    const y = stripY + borderWidth + idx * (photoH + dividerHeight);
+    ctx.drawImage(img, x, y, photoW, photoH);
+  });
+}
+
 
     function triggerDispenseAnimation() {
       const btnGroup = document.getElementById('action-buttons');
