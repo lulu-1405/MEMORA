@@ -593,9 +593,21 @@
   canvas.width = stripW + (paddingX * 2);
   canvas.height = stripH + (paddingY * 2);
 
-  // 1. Dibujar el fondo completo estilo story (#E2E2E2)
-  ctx.fillStyle = '#E2E2E2';
+    // 1. DIBUJAR EL FONDO DE PUNTITOS (POLKA DOT)
+  ctx.fillStyle = '#E2E2E2'; // Color de fondo base
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Puntitos blancos semitransparentes
+  const dotRadius = 4; // Tamaño de los puntos
+  const dotGap = 24;   // Distancia entre puntos
+
+  for (let x = 0; x < canvas.width; x += dotGap) {
+    for (let y = 0; y < canvas.height; y += dotGap) {
+      ctx.beginPath();
+      ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
   // 2. Dibujar el marco base de la tira (centrado)
   const stripX = paddingX;
