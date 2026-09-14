@@ -420,7 +420,8 @@
       
       <!-- Ranura photobooth -->
       <div class="photobooth-slot">
-        <canvas id="photo-strip"></canvas>
+        <canvas id="photo-strip" onclick="openPreview()" style="cursor: pointer;"></canvas>
+
       </div>
       
       <!-- BOTONES DE ACCIÓN ICONOS + TEXTO SOBRE FORMAS PASTEL -->
@@ -622,6 +623,27 @@
     ctx.drawImage(img, x, y, photoW, photoH);
   });
 }
+    function openPreview() {
+  const canvas = document.getElementById('photo-strip');
+  const dataUrl = canvas.toDataURL('image/png');
+  
+  // Crear una ventana / imagen emergente para guardarla fácilmente
+  const win = window.open('');
+  if (win) {
+    win.document.write(`
+      <html>
+        <head><title>MEMORA Strip</title></head>
+        <body style="margin:0; background:#111; display:flex; justify-content:center; align-items:center; min-height:100vh;">
+          <img src="${dataUrl}" style="max-width:90%; max-height:95vh; border-radius:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+        </body>
+      </html>
+    `);
+  } else {
+    // Si la ventana emergente es bloqueada en Safari, descargamos directamente
+    downloadStrip();
+  }
+}
+
 
 
     function triggerDispenseAnimation() {
