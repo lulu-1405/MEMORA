@@ -393,9 +393,10 @@
       
       <!-- BOTONES FILTRO BLOBS PASTEL -->
       <div class="filter-blob-selector">
-        <button class="blob-btn active" data-filter="bw-warm" onclick="selectFilter('bw-warm')">
-          B&W Cálido
-        </button>
+        <button class="blob-btn active" data-filter="vintage" onclick="selectFilter('vintage')">
+  Cálido Vintage
+</button>
+
         <button class="blob-btn" data-filter="bw-classic" onclick="selectFilter('bw-classic')">
           B&W Neutro
         </button>
@@ -555,12 +556,11 @@
 
           let gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-          if (currentFilter === 'bw-warm') {
-            gray = ((gray - 128) * 1.3) + 128;
-            gray = Math.min(255, Math.max(0, gray));
-            data[i]     = Math.min(255, gray + 12);
-            data[i + 1] = Math.min(255, gray + 8);
-            data[i + 2] = Math.max(0, gray - 10);
+                if (currentFilter === 'vintage') {
+        data[i]     = Math.min(255, r * 1.08 + 10); // Realza los cálidos
+        data[i + 1] = Math.min(255, g * 1.02 + 4);  // Mantiene verdes suaves
+        data[i + 2] = Math.max(0, b * 0.90 - 5);    // Suaviza azules para tono vintage
+
           } else if (currentFilter === 'bw-classic') {
             gray = ((gray - 128) * 1.4) + 128;
             gray = Math.min(255, Math.max(0, gray));
@@ -590,8 +590,9 @@
   const paddingX = 100; // Espacio a los lados
   const paddingY = 80;  // Espacio arriba y abajo
 
-  // Dimensiones totales de la imagen descargable
-  canvas.width = stripW + (paddingX * 2);
+ canvas.height = stripH + (paddingY * 2);
+canvas.width = Math.round(canvas.height * (9 / 16)); // Forzar aspecto 9:16 exacto para IG Story
+
   canvas.height = stripH + (paddingY * 2);
 
     // 1. DIBUJAR EL FONDO DE PUNTITOS (POLKA DOT)
@@ -611,7 +612,8 @@
   }
 
   // 2. Dibujar el marco base de la tira (centrado)
-  const stripX = paddingX;
+  const stripX = Math.round((canvas.width - stripW) / 2);
+
   const stripY = paddingY;
   ctx.fillStyle = '#000000'; // Fondo de la tira fotográfica
   ctx.fillRect(stripX, stripY, stripW, stripH);
