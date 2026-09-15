@@ -556,10 +556,22 @@
 
           let gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-                if (currentFilter === 'vintage') {
-        data[i]     = Math.min(255, r * 1.08 + 10); // Realza los cálidos
-        data[i + 1] = Math.min(255, g * 1.02 + 4);  // Mantiene verdes suaves
-        data[i + 2] = Math.max(0, b * 0.90 - 5);    // Suaviza azules para tono vintage
+                      if (currentFilter === 'vintage') {
+        r = r * 1.12 + 15;
+        g = g * 1.12 + 15;
+        b = b * 1.12 + 15;
+
+        r = Math.min(255, r * 1.12 + 12);  
+        g = Math.min(255, g * 1.04 + 6);  
+        b = Math.min(255, b * 0.82);   
+
+        r = r * 0.90 + 20;
+        g = g * 0.90 + 16;
+        b = b * 0.90 + 12;
+
+        data[i]     = Math.min(255, Math.max(0, r));
+        data[i + 1] = Math.min(255, Math.max(0, g));
+        data[i + 2] = Math.min(255, Math.max(0, b));
 
           } else if (currentFilter === 'bw-classic') {
             gray = ((gray - 128) * 1.4) + 128;
@@ -629,22 +641,43 @@ canvas.width = Math.round(canvas.height * (9 / 16)); // Forzar aspecto 9:16 exac
   const canvas = document.getElementById('photo-strip');
   const dataUrl = canvas.toDataURL('image/png');
   
-  // Crear una ventana / imagen emergente para guardarla fácilmente
-  const win = window.open('');
-  if (win) {
-    win.document.write(`
-      <html>
-        <head><title>MEMORA Strip</title></head>
-        <body style="margin:0; background:#111; display:flex; justify-content:center; align-items:center; min-height:100vh;">
-          <img src="${dataUrl}" style="max-width:90%; max-height:95vh; border-radius:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
-        </body>
-      </html>
-    `);
-  } else {
-    // Si la ventana emergente es bloqueada en Safari, descargamos directamente
-    downloadStrip();
+  let modal = document.getElementById('preview-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'preview-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    `;
+    modal.onclick = closePreview;
+    
+    modal.innerHTML = `
+      <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; font-family: sans-serif; cursor: pointer; padding: 10px; font-weight: bold;">✕</div>
+      <img id="preview-img" style="max-width: 90%; max-height: 80vh; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+      <p style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 15px; font-family: sans-serif;">Toca en cualquier lugar o en la ✕ para cerrar</p>
+    `;
+    document.body.appendChild(modal);
+  }
+  
+  document.getElementById('preview-img').src = dataUrl;
+  modal.style.display = 'flex';
+}
+
+function closePreview() {
+  const modal = document.getElementById('preview-modal');
+  if (modal) {
+    modal.style.display = 'none';
   }
 }
+
 
 
 
