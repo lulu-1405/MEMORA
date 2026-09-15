@@ -466,12 +466,10 @@
     const video = document.getElementById('webcam');
     const countdownEl = document.getElementById('countdown');
     const canvas = document.getElementById('photo-strip');
-    const ctx = canvas.getContext('2d');
-    
-    let photos = [];
-    let currentFilter = 'bw-warm';
+    const ctx = canvas.getContext('2d');let photos = [];
+let currentFilter = 'bw-warm';
 
-    function selectFilter(filterType) {
+function selectFilter(filterType) {
   currentFilter = filterType;
   document.querySelectorAll('.filter-blob-selector .blob-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
@@ -486,23 +484,13 @@
     video.classList.add('filter-vintage');
   }
 }
+
 function goToScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   if (screenId === 'screen-booth') startCamera();
 }
 
-        video.classList.add('filter-bw-warm');
-      } else if (filterType === 'bw-classic') {
-        video.classList.add('filter-bw-classic');
-      }
-    }
-
-    function goToScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-      if(screenId === 'screen-booth') startCamera();
-    }
 
     async function startCamera() {
       try {
