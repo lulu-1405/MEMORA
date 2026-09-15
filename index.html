@@ -241,6 +241,11 @@
       box-shadow: 0 6px 15px rgba(88, 12, 31, 0.18);
       border: 2px solid var(--burgundy);
     }
+.photo-strip, .memora-strip, #strip-container, #strip {
+  background-image: url('IMG_5612.jpeg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
 
     /* ANIMACION PHOTOBOOTH DE CAÍDA */
     .photobooth-slot {
@@ -615,9 +620,11 @@ canvas.width = Math.round(canvas.height * (9 / 16)); // Forzar aspecto 9:16 exac
 
   canvas.height = stripH + (paddingY * 2);
 
-    // 1. DIBUJAR EL FONDO DE PUNTITOS (POLKA DOT)
-  ctx.fillStyle = '#E2E2E2'; // Color de fondo base
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+   // 1. DIBUJAR EL FONDO DE LA IMAGEN
+const bgImg = new Image();
+bgImg.src = 'IMG_5612.jpeg';
+ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Puntitos blancos semitransparentes
   const dotRadius = 4; // Tamaño de los puntos
