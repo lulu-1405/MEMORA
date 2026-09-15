@@ -32,23 +32,19 @@
   }
 
   /* Estilos para el flash blanco */
-  #flash-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: white;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 9999;
-    transition: opacity 0.15s ease-out;
-  }
+#flash-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transition: opacity 0.05s ease-in-out;
+}
+#flash-overlay.active {
+  opacity: 1;
+}
 
-  #flash-overlay.active {
-    opacity: 1;
-    transition: opacity 0.05s ease-in;
-  }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -497,16 +493,17 @@
       document.getElementById('start-btn').disabled = true;
       photos = [];
 
-      for(let i = 0; i < 4; i++) {
+            for(let i = 0; i < 4; i++) {
         await runCountdown(3);
+        
+        const flash = document.getElementById('flash-overlay');
+        if (flash) flash.classList.add('active');
+        
+        await new Promise(r => setTimeout(r, 120));
         captureToMemory();
-              const flash = document.getElementById('flash-overlay');
-        if (flash) {
-          flash.classList.add('active');
-          setTimeout(() => flash.classList.remove('active'), 150);
-        }
-
-
+        await new Promise(r => setTimeout(r, 100));
+        
+        if (flash) flash.classList.remove('active');
       }
 
       generateMemoraStrip();
