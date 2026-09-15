@@ -472,14 +472,26 @@
     let currentFilter = 'bw-warm';
 
     function selectFilter(filterType) {
-      currentFilter = filterType;
-      
-      document.querySelectorAll('.filter-blob-selector .blob-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
-      });
+  currentFilter = filterType;
+  document.querySelectorAll('.filter-blob-selector .blob-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
+  });
 
-      video.className = '';
-      if (filterType === 'bw-warm') {
+  video.className = '';
+  if (filterType === 'bw-warm') {
+    video.classList.add('filter-bw-warm');
+  } else if (filterType === 'bw-classic') {
+    video.classList.add('filter-bw-classic');
+  } else if (filterType === 'vintage') {
+    video.classList.add('filter-vintage');
+  }
+}
+function goToScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  if (screenId === 'screen-booth') startCamera();
+}
+
         video.classList.add('filter-bw-warm');
       } else if (filterType === 'bw-classic') {
         video.classList.add('filter-bw-classic');
