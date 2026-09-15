@@ -44,6 +44,15 @@
 #flash-overlay.active {
   opacity: 1;
 }
+.filter-btn[data-filter="vintage"].active {
+  background-color: var(--pink-blob, #F7C5D5) !important;
+  color: #3B0E17 !important;
+  border-color: #3B0E17 !important;
+}
+
+.filter-vintage {
+  filter: sepia(0.45) contrast(1.15) brightness(1.08) saturate(1.35) hue-rotate(-12deg);
+}
 
 
 
@@ -557,17 +566,15 @@
 
           let gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-                      if (currentFilter === 'vintage') {
-        r = r * 1.12 + 15;
-        g = g * 1.12 + 15;
-        b = b * 1.12 + 15;
+                            if (currentFilter === 'vintage') {
+        r = Math.min(255, Math.max(0, r * 1.18 + 10));
+        g = Math.min(255, Math.max(0, g * 1.05 + 5));
+        b = Math.min(255, Math.max(0, b * 0.85 + 8));
+        
+        r = Math.min(255, r * 1.05);
+        b = Math.min(255, b * 0.92);
+      }
 
-        r = Math.min(255, r * 1.12 + 12);  
-        g = Math.min(255, g * 1.04 + 6);  
-        b = Math.min(255, b * 0.82);   
-
-        r = r * 0.90 + 20;
-        g = g * 0.90 + 16;
         b = b * 0.90 + 12;
 
         data[i]     = Math.min(255, Math.max(0, r));
