@@ -490,27 +490,29 @@
     }
 
     async function startPhotoSequence() {
-      document.getElementById('start-btn').disabled = true;
-      photos = [];
+  document.getElementById('start-btn').disabled = true;
+  photos = [];
 
-            for(let i = 0; i < 4; i++) {
-        await runCountdown(3);
-        
-        const flash = document.getElementById('flash-overlay');
-        if (flash) flash.classList.add('active');
-        
-        await new Promise(r => setTimeout(r, 120));
-        captureToMemory();
-        await new Promise(r => setTimeout(r, 100));
-        
-        if (flash) flash.classList.remove('active');
-      }
+  for(let i = 0; i < 4; i++) {
+    await runCountdown(3);
 
-      generateMemoraStrip();
-      goToScreen('screen-result');
-      triggerDispenseAnimation();
-      document.getElementById('start-btn').disabled = false;
-    }
+    const flash = document.getElementById('flash-overlay');
+    if (flash) flash.classList.add('active');
+
+    setTimeout(() => {
+      captureToMemory(i);
+      if (flash) flash.classList.remove('active');
+    }, 120);
+
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  generateMemoraStrip();
+  goToScreen('screen-result');
+  triggerDispenseAnimation();
+  document.getElementById('start-btn').disabled = false;
+}
+
 
     function runCountdown(sec) {
       return new Promise(resolve => {
