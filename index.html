@@ -39,14 +39,12 @@
   opacity: 0;
   pointer-events: none;
   z-index: 99999;
-  transition: opacity 0.05s ease-in-out;
+  transition: opacity 0.15s ease-out;
 }
 #flash-overlay.active {
   opacity: 1;
 }
-.filter-vintage {
-  filter: sepia(0.35) contrast(1.1) brightness(1.15) saturate(1.2) hue-rotate(-10deg);
-}
+
 
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -502,12 +500,12 @@
     const flash = document.getElementById('flash-overlay');
     if (flash) flash.classList.add('active');
 
-    setTimeout(() => {
-      captureToMemory(i);
-      if (flash) flash.classList.remove('active');
-    }, 120);
+    await new Promise(r => setTimeout(r, 120));
+    captureToMemory(i);
+    
+    if (flash) flash.classList.remove('active');
 
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 400));
   }
 
   generateMemoraStrip();
@@ -515,6 +513,7 @@
   triggerDispenseAnimation();
   document.getElementById('start-btn').disabled = false;
 }
+
 
 
     function runCountdown(sec) {
