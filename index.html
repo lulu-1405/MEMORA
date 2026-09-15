@@ -538,15 +538,17 @@
         const interval = setInterval(() => {
           current--;
           if(current > 0) {
-            countdownEl.textContent = current;
-          } else {
-            clearInterval(interval);
-            countdownEl.style.display = 'none';
-            resolve();
-          }
-        } 1000);
-      });
-    }
+                  if (current > 0) {
+          countdownEl.textContent = current;
+        } else {
+          clearInterval(interval);
+          countdownEl.style.display = 'none';
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+
 
     function captureToMemory() {
       const tempCanvas = document.createElement('canvas');
@@ -621,22 +623,15 @@ canvas.width = Math.round(canvas.height * (9 / 16)); // Forzar aspecto 9:16 exac
   canvas.height = stripH + (paddingY * 2);
 
    // 1. DIBUJAR EL FONDO DE LA IMAGEN
-const bgImg = new Image();
-bgImg.src = 'IMG_5612.jpeg';
-ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; // Puntitos blancos semitransparentes
-  const dotRadius = 4; // Tamaño de los puntos
-  const dotGap = 24;   // Distancia entre puntos
-
-  for (let x = 0; x < canvas.width; x += dotGap) {
-    for (let y = 0; y < canvas.height; y += dotGap) {
-      ctx.beginPath();
-      ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
-      ctx.fill();
-    }
+  const bgImg = new Image();
+  bgImg.src = 'IMG_5612.jpeg';
+  if (bgImg.complete) {
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#E2E2E2';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+
 
   // 2. Dibujar el marco base de la tira (centrado)
   const stripX = Math.round((canvas.width - stripW) / 2);
